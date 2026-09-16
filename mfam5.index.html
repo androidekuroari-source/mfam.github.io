@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- =========================================================================
+         METADADOS, PWA E CONFIGURAÇÕES DE TELA
+         ========================================================================= -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ff6b6b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Weekend Routine">
+    <title>Meu App de Rotina de Fim de Semana - PWA Otimizado</title>
+    
+    <!-- MANIFESTO PWA (Data URI para execução self-contained sem arquivos extras) -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Weekend%20Routine%20App%22%2C%22short_name%22%3A%22Rotina%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fffaf0%22%2C%22theme_color%22%3A%22%23ff6b6b%22%2C%22description%22%3A%22App%20de%20Rotina%20de%20Fim%20de%20Semana%20PWA%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20512%20512'%3E%3Crect%20width%3D'512'%20height%3D'512'%20rx%3D'128'%20fill%3D'%23ff6b6b'%2F%3E%3Ctext%20x%3D'50%25'%20y%3D'55%25'%20font-size%3D'280'%20text-anchor%3D'middle'%20dominant-baseline%3D'middle'%3E%F0%9F%97%93%EF%B8%8F%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- =========================================================================
+         FOLHA DE ESTILOS (CSS) - PWA, Layout e Performance
+         ========================================================================= -->
+    <style>
+        /* Variáveis de Cores (Sunset Theme) */
+        :root {
+            --primary: #ff6b6b;         /* Coral vibrante */
+            --primary-dark: #e03131;    /* Coral escuro */
+            --primary-light: #ffe3e3;   /* Coral ultra claro */
+            --bg: #fffaf0;              /* Fundo creme sutil */
+            --card-bg: #ffffff;         /* Branco puro */
+            --text-main: #2b2d42;       /* Texto escuro acinzentado */
+            --text-muted: #8d99ae;      /* Cinza azulado */
+            --border: #fcd5ce;          /* Rosa pastel suave */
+            --success: #2b8a3e;         /* Verde folha */
+            --success-light: #ebfbee;   /* Verde suave */
+            --whatsapp-color: #25d366;  /* Verde oficial WhatsApp */
+            --whatsapp-dark: #128c7e;   /* Verde escuro WhatsApp */
+        }
+
+        /* CSS Reset padrão */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px -5px rgba(255, 107, 107, 0.1), 0 8px 15px -6px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 4px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* BOTÃO DE INSTALAÇÃO PWA */
+        .btn-pwa-install {
+            background-color: var(--text-main);
+            color: #ffffff;
+            width: fit-content;
+            padding: 8px 18px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            margin: 0 auto 16px auto;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-pwa-install:active {
+            transform: scale(0.96);
+        }
+
+        /* Controle de Telas (SPA) */
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: slideUp 0.3s ease-in-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Seções de Formulário */
+        .day-section {
+            margin-bottom: 24px;
+            background: #fffdf9;
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .day-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-main);
+            border-bottom: 3px solid var(--border);
+            padding-bottom: 6px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 14px;
+        }
+
+        .input-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .input-label .icon {
+            font-size: 1.1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Configuração de Botões */
+        .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            margin-top: 12px;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.98);
+            background-color: #ffb1b1;
+        }
+
+        /* Container de Compartilhamento */
+        .share-buttons-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 24px;
+            width: 100%;
+        }
+
+        .btn-whatsapp {
+            background-color: var(--whatsapp-color);
+            color: white;
+            width: fit-content;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+        }
+
+        .btn-whatsapp:active {
+            transform: scale(0.98);
+            background-color: var(--whatsapp-dark);
+        }
+
+        .btn-instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            width: fit-content;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(220, 39, 67, 0.25);
+        }
+
+        .btn-instagram:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .checklist-day {
+            margin-bottom: 24px;
+        }
+
+        /* Cards do Checklist */
+        .checklist-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+            padding: 14px 16px 14px 48px;
+            background: #fffdf9;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            gap: 2px;
+        }
+
+        .checklist-item:has(input:checked) {
+            background-color: var(--success-light);
+            border-color: #a7f3d0;
+        }
+
+        .checkbox-container {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 50%;
+            left: 14px;
+            transform: translateY(-50%);
+            height: 22px;
+            width: 22px;
+            background-color: white;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .checkbox-container .checkmark:after {
+            left: 7px;
+            top: 3px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2.5px 2.5px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox-container input:checked ~ .item-text {
+            color: var(--text-muted);
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        
+        .checkbox-container input:checked ~ .item-sub {
+            color: var(--text-muted);
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .item-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        .item-sub {
+            font-size: 0.75rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 800;
+            transition: all 0.2s ease;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 12px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-container">
+        <header>
+            <h1>Weekend Routine 🗓️</h1>
+            <p id="header-subtitle">Monte e cumpra seu checklist de fim de semana</p>
+        </header>
+
+        <!-- BOTÃO DE INSTALAÇÃO PWA DEDICADO (SÓ APARECE QUANDO INSTALÁVEL) -->
+        <button id="pwa-install-btn" onclick="installPWA()" class="btn-pwa-install">
+            📲 Instalar Aplicativo
+        </button>
+
+        <!-- TELA 1: FORMULÁRIO -->
+        <div id="form-screen" class="screen active">
+            <form id="routine-form" onsubmit="event.preventDefault(); generateChecklist();">
+                <!-- Entradas geradas dinamicamente via JS para otimização -->
+                <div id="dynamic-inputs-container"></div>
+
+                <button type="submit" class="btn btn-primary">
+                    ✨ Gerar meu Checklist
+                </button>
+            </form>
+        </div>
+
+        <!-- TELA 2: CHECKLIST GERADO -->
+        <div id="checklist-screen" class="screen">
+            <div id="dynamic-checklist-container"></div>
+
+            <!-- BOTÕES DE COMPARTILHAMENTO -->
+            <div class="share-buttons-container">
+                <button onclick="shareOnWhatsApp()" class="btn btn-whatsapp">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.03 12.008.03c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.975-11.953 11.975-1.993-.001-3.952-.52-5.717-1.51L0 24zm6.59-2.735c1.66.986 3.291 1.5 5.358 1.5 5.275 0 9.56-4.288 9.564-9.564.002-2.556-1.01-4.96-2.85-6.804C16.822 4.553 14.41 3.54 11.83 3.54c-5.277 0-9.565 4.29-9.568 9.568-.001 2.11.561 3.754 1.634 5.4l-.99 3.61 3.731-.973zm11.381-6.463c-.312-.156-1.848-.913-2.127-1.015-.28-.103-.483-.156-.686.156-.203.311-.785 1.015-.963 1.218-.178.203-.356.228-.668.072-1.09-.545-1.8-1.005-2.514-2.228-.19-.323.19-.3.543-.996.059-.118.03-.223-.015-.312-.045-.088-.413-1.015-.57-1.401-.152-.37-.31-.32-.424-.33-.109-.01-.234-.01-.356-.01s-.323.047-.492.228c-.169.181-.645.631-.645 1.538 0 1.08.683 2.13.778 2.256.095.125 1.347 2.059 3.262 2.88.456.196.811.313 1.09.4.458.147.876.125 1.206.063.368-.069 1.132-.464 1.291-.912.16-.448.16-.831.111-.912-.049-.081-.178-.125-.49-.281z"/>
+                    </svg>Compartilhar no WhatsApp
+                </button>
+
+                <button onclick="shareOnInstagram()" class="btn btn-instagram">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4.162 4.162 0 110-8.324 4.162 4.162 0 010 8.324zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                    </svg>Compartilhar no Instagram
+                </button>
+            </div>
+
+            <button onclick="editRoutine()" class="btn btn-secondary">
+                ✏️ Editar Atividades
+            </button>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         COMPORTAMENTO DO APP (JAVASCRIPT) - PWA, Offline, Cache & Auto-Save
+         ========================================================================= -->
+    <script>
+        // ESTRUTURAS DE DADOS
+        const days = [
+            { key: 'sab', name: 'Sábado', icon: '☀️' },
+            { key: 'dom', name: 'Domingo', icon: '🌴' }
+        ];
+
+        const activities = [
+            { id: 'cafe', name: 'Café da Manhã', icon: '🍳', placeholder: 'Ex: Tapioca com queijo' },
+            { id: 'almoco', name: 'Almoço', icon: '🍛', placeholder: 'Ex: Strogonoff de carne' },
+            { id: 'lanche', name: 'Lanche', icon: '🍰', placeholder: 'Ex: Shake proteico' },
+            { id: 'jantar', name: 'Jantar', icon: '🍕', placeholder: 'Ex: Pizza marguerita' },
+            { id: 'after', name: 'After', icon: '🍹', placeholder: 'Ex: Jogar videogame' }
+        ];
+
+        // GERAR FORMULÁRIO DINÂMICO AO CARREGAR A PÁGINA
+        function renderFormInputs() {
+            const container = document.getElementById('dynamic-inputs-container');
+            let html = '';
+
+            days.forEach(day => {
+                html += `
+                    <div class="day-section">
+                        <h2 class="day-title"><span>${day.icon}</span> ${day.name}</h2>
+                `;
+                activities.forEach(act => {
+                    const inputId = `${day.key}-${act.id}`;
+                    html += `
+                        <div class="input-group">
+                            <label class="input-label" for="${inputId}">
+                                <span class="icon">${act.icon}</span> ${act.name}
+                            </label>
+                            <input type="text" id="${inputId}" class="input-field" placeholder="${act.placeholder}" oninput="autoSaveRoutine()">
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            });
+
+            container.innerHTML = html;
+            loadSavedRoutine(); // Carrega os dados persistidos no localStorage (zero cliques adicionais)
+        }
+
+        // GERAR CHECKLIST DINÂMICO
+        function generateChecklist() {
+            const container = document.getElementById('dynamic-checklist-container');
+            let html = '';
+
+            days.forEach(day => {
+                let dayItemsHtml = '';
+                let hasData = false;
+
+                activities.forEach(act => {
+                    const inputEl = document.getElementById(`${day.key}-${act.id}`);
+                    const val = inputEl ? inputEl.value.trim() : "";
+                    
+                    if (val !== "") {
+                        const uniqueId = `${day.key}-${act.id}-check`;
+                        dayItemsHtml += `
+                            <label class="checklist-item">
+                                <span class="checkbox-container">
+                                    <span class="item-sub">${act.icon} ${act.name}</span>
+                                    <span class="item-text">${val}</span>
+                                    <input type="checkbox" id="${uniqueId}" onchange="autoSaveChecklistState('${uniqueId}')">
+                                    <span class="checkmark"></span>
+                                </span>
+                            </label>
+                        `;
+                        hasData = true;
+                    }
+                });
+
+                html += `
+                    <div class="checklist-day">
+                        <h2 class="day-title"><span>${day.icon}</span> ${day.name}</h2>
+                        ${hasData ? dayItemsHtml : '<p class="empty-message">Nenhuma atividade planejada para este dia.</p>'}
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            loadSavedChecklistState(); // Restaura marcações anteriores salvas no localStorage
+
+            document.getElementById('header-subtitle').innerText = "Marque as atividades conforme for concluindo!";
+            document.getElementById('form-screen').classList.remove('active');
+            document.getElementById('checklist-screen').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // VOLTAR PARA TELA DE EDIÇÃO
+        function editRoutine() {
+            document.getElementById('header-subtitle').innerText = "Monte e cumpra seu checklist de fim de semana";
+            document.getElementById('checklist-screen').classList.remove('active');
+            document.getElementById('form-screen').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // RECURSOS DE PERSISTÊNCIA E DESEMPENHO (LOCALSTORAGE - SEM CLICKS EXTRAS)
+        function autoSaveRoutine() {
+            const routineData = {};
+            days.forEach(day => {
+                activities.forEach(act => {
+                    const inputId = `${day.key}-${act.id}`;
+                    const el = document.getElementById(inputId);
+                    if (el) routineData[inputId] = el.value;
+                });
+            });
+            localStorage.setItem('weekend_routine_inputs', JSON.stringify(routineData));
+        }
+
+        function loadSavedRoutine() {
+            try {
+                const saved = localStorage.getItem('weekend_routine_inputs');
+                if (saved) {
+                    const routineData = JSON.parse(saved);
+                    Object.keys(routineData).forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = routineData[id];
+                    });
+                }
+            } catch(e) { console.log('Erro ao carregar dados salvos', e); }
+        }
+
+        function autoSaveChecklistState(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                const savedStates = JSON.parse(localStorage.getItem('weekend_checklist_states') || '{}');
+                savedStates[id] = el.checked;
+                localStorage.setItem('weekend_checklist_states', JSON.stringify(savedStates));
+            }
+        }
+
+        function loadSavedChecklistState() {
+            try {
+                const saved = localStorage.getItem('weekend_checklist_states');
+                if (saved) {
+                    const savedStates = JSON.parse(saved);
+                    Object.keys(savedStates).forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.checked = savedStates[id];
+                    });
+                }
+            } catch(e) { console.log('Erro ao carregar estado do checklist', e); }
+        }
+
+        // GERAR TEXTO FORMATADO PARA COMPARTILHAMENTO
+        function buildShareText() {
+            let textMessage = "🗓️ *MINHA ROTINA DE FIM DE SEMANA* 🗓️\n\n";
+
+            days.forEach(day => {
+                let dayText = `*${day.icon} ${day.name.toUpperCase()}:*\n`;
+                let hasData = false;
+
+                activities.forEach(act => {
+                    const inputEl = document.getElementById(`${day.key}-${act.id}`);
+                    const val = inputEl ? inputEl.value.trim() : "";
+                    if (val !== "") {
+                        const isChecked = document.getElementById(`${day.key}-${act.id}-check`)?.checked;
+                        const statusIcon = isChecked ? "✅" : "⬜";
+                        dayText += `${statusIcon} ${act.icon} *${act.name}:* ${val}\n`;
+                        hasData = true;
+                    }
+                });
+
+                if (hasData) {
+                    textMessage += dayText + "\n";
+                }
+            });
+
+            textMessage += "_Enviado pelo meu App de Rotina_ 🚀";
+            return textMessage;
+        }
+
+        // COMPARTILHAR NO WHATSAPP
+        function shareOnWhatsApp() {
+            const textMessage = buildShareText();
+            const encodedText = encodeURIComponent(textMessage);
+            window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
+        }
+
+        // COMPARTILHAR NO INSTAGRAM
+        function shareOnInstagram() {
+            const textMessage = buildShareText();
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Minha Rotina de Fim de Semana',
+                    text: textMessage
+                }).catch(error => console.log('Erro ao compartilhar', error));
+            } else {
+                navigator.clipboard.writeText(textMessage).then(() => {
+                    alert("Sua rotina formatada foi copiada para a área de transferência! 📋\n\nAbra o Instagram e cole no Direct ou crie um sticker de texto nos Stories!");
+                }).catch(() => {
+                    alert("Não foi possível copiar automaticamente. Selecione e copie o texto do seu checklist.");
+                });
+            }
+        }
+
+        // =========================================================================
+        // SUPORTE PWA & REGISTRO DO SERVICE WORKER (DESEMPENHO E ACESSO OFFLINE)
+        // =========================================================================
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) installBtn.style.display = 'inline-flex';
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('App instalado com sucesso!');
+                    }
+                    deferredPrompt = null;
+                    const installBtn = document.getElementById('pwa-install-btn');
+                    if (installBtn) installBtn.style.display = 'none';
+                });
+            }
+        }
+
+        // REGISTRO DE SERVICE WORKER RECOMENDADO
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'weekend-routine-v1';
+                    const ASSETS = [
+                        './',
+                        'index.html',
+                        'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap'
+                    ];
+
+                    self.addEventListener('install', (e) => {
+                        e.waitUntil(
+                            caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+                        );
+                    });
+
+                    self.addEventListener('activate', (e) => {
+                        e.waitUntil(
+                            caches.keys().then(keys => Promise.all(
+                                keys.map(key => { if (key !== CACHE_NAME) return caches.delete(key); })
+                            )).then(() => self.clients.claim())
+                        );
+                    });
+
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => caches.match('./')))
+                        );
+                    });
+                `;
+
+                try {
+                    const blob = new Blob([swCode], { type: 'application/javascript' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    navigator.serviceWorker.register(blobUrl)
+                        .then(reg => console.log('Service Worker PWA ativado!', reg))
+                        .catch(() => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+                } catch(e) {
+                    navigator.serviceWorker.register('./sw.js').catch(() => {});
+                }
+            });
+        }
+
+        // INICIALIZAR RENDERIZAÇÃO DO FORMULÁRIO
+        renderFormInputs();
+    </script>
+</body>
+</html>
